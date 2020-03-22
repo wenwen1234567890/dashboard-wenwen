@@ -36,9 +36,16 @@ def home():
     title_data_items = generate_data_for_tiles()
 
     # render the HTML page passing in relevant data
-    return render_template('dashboard/index.html', tile_data=title_data_items,
-                           pct={'data': bar_values, 'labels': bar_labels},
-                           pct_list=pcts, pct_data=selected_pct_data)
+    return render_template(
+            'dashboard/index.html',
+            tile_data=title_data_items,
+            pct={'data': bar_values, 'labels': bar_labels},
+            pct_list=pcts,
+            pct_data=selected_pct_data,
+            avg_act=generate_avg_ACT(),
+            max_quantity_in_total=round(generate_max_quantity_prescribing() / title_data_items[0] * 100, 2),
+            unique_item=generate_count_prescrib()
+        )
 
 def generate_data_for_tiles():
     """Generate the data for the four home page titles."""
@@ -54,3 +61,11 @@ def generate_barchart_data():
     pct_codes = [r[0] for r in pct_codes]
     return [data_values, pct_codes]
 
+def generate_avg_ACT():
+    return round(db_mod.get_avg_ACT(), 2)
+
+def generate_max_quantity_prescribing():
+    return db_mod.get_max_quantity_prescribing()
+
+def generate_count_prescrib():
+    return db_mod.get_count_prescrib()

@@ -32,3 +32,12 @@ class Database:
     def get_n_data_for_PCT(self, pct, n):
         """Return all the data for a given PCT."""
         return db.session.query(PrescribingData).filter(PrescribingData.PCT == pct).limit(n).all()
+
+    def get_avg_ACT(self):
+        return db.session.query(func.avg(PrescribingData.ACT_cost)).scalar()
+
+    def get_max_quantity_prescribing(self):
+        return db.session.query(func.max(PrescribingData.quantity)).scalar()
+    
+    def get_count_prescrib(self):
+        return db.session.query(func.count(PrescribingData.id)).scalar()
