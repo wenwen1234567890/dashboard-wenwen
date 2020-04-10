@@ -41,3 +41,21 @@ class Database:
     
     def get_count_prescrib(self):
         return db.session.query(func.count(PrescribingData.id)).scalar()
+
+    def get_treatment_total(self):
+        """Return the total items of treatment durg"""
+        return db.session.query(func.sum(PrescribingData.items)).filter(PrescribingData.BNF_code.like("05%")).first()[0]
+
+    def get_treatment_percentage(self):
+        code = db.session.query(func.substr(PrescribingData.BNF_code,1,4)\
+            .label('Code'),PrescribingData.id).subquery()
+        r = db.session.query(func.sum(PrescribingData.items))\
+            .outerjoin(code,PrescribingData.id==code.c.id)\
+            .filter(PrescribingData.BNF_code.like("05%"))\
+            .group_by(code.c.Code)
+
+        treatment_total = int(self.get_treatment_total())
+        ret = []
+        for i in range(5):
+            ret.append(round(int(r[i][0]) / treatment_total * 100, 2 ))
+        return ret

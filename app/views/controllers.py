@@ -8,7 +8,7 @@ DESCRIPTION:   Views module. Renders HTML pages and passes in associated data to
                dashboard.
 """
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify
 from app.database.controllers import Database
 
 views = Blueprint('dashboard', __name__, url_prefix='/dashboard')
@@ -44,7 +44,8 @@ def home():
             pct_data=selected_pct_data,
             avg_act=generate_avg_ACT(),
             max_quantity_in_total=round(generate_max_quantity_prescribing() / title_data_items[0] * 100, 2),
-            unique_item=generate_count_prescrib()
+            unique_item=generate_count_prescrib(),
+            percentage=generate_percentages(),
         )
 
 def generate_data_for_tiles():
@@ -69,3 +70,24 @@ def generate_max_quantity_prescribing():
 
 def generate_count_prescrib():
     return db_mod.get_count_prescrib()
+
+def generate_percentages():
+    return db_mod.get_treatment_percentage()
+
+@views.route('/home/calculate_creatinine_clearance', methods=['GET'])
+def ccc():
+    """Calculate creatinine clearance"""
+
+    sex = request.args.get('sex')
+    age = float(request.args.get('age'))
+    weight = float(request.args.get('weight'))
+    serum = float(request.args.get('serum'))
+
+    if sex == 'm':
+        ret = str(((140 - age) * weight) / (serum * 72 / 88.40))
+        return ret
+    elif sex == 'f':
+        ret = str(((140 - age) * weight) / (serum * 72 * 88.40) * 0.85)
+        return ret
+    else:
+        return 'undefined'
