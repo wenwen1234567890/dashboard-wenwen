@@ -35,7 +35,9 @@
         $(document).ready(function () {
             initializeMain();
             barChart.drawChart({{pct|tojson}}, "bar-chart");
+            barChart.drawChart({{bar_graph1|tojson}}, "bar-chart1");
         });
+
   </script>
 </head>
 
@@ -77,6 +79,13 @@
         </div>
       </li>
 
+      <li class="nav-item">
+        <div class="nav-link" onclick="window.print()">
+          <i class="fas fa-print"></i>
+          <span>Print / save page</span>
+        </div>
+      </li>
+
       <!-- Divider -->
       <hr class="sidebar-divider">
     </ul>
@@ -99,6 +108,17 @@
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
 
+            <li class="nav-item">
+              <a class="nav-link p-2" href="https://github.com/twbs/bootstrap" target="_blank" rel="noopener"
+                aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" class="navbar-nav-svg"
+                  viewBox="0 0 512 499.36" role="img" focusable="false">
+                  <title>GitHub</title>
+                  <path fill="currentColor" fill-rule="evenodd"
+                    d="M256 0C114.64 0 0 114.61 0 256c0 113.09 73.34 209 175.08 242.9 12.8 2.35 17.47-5.56 17.47-12.34 0-6.08-.22-22.18-.35-43.54-71.2 15.49-86.2-34.34-86.2-34.34-11.64-29.57-28.42-37.45-28.42-37.45-23.27-15.84 1.73-15.55 1.73-15.55 25.69 1.81 39.21 26.38 39.21 26.38 22.84 39.12 59.92 27.82 74.5 21.27 2.33-16.54 8.94-27.82 16.25-34.22-56.84-6.43-116.6-28.43-116.6-126.49 0-27.95 10-50.8 26.35-68.69-2.63-6.48-11.42-32.5 2.51-67.75 0 0 21.49-6.88 70.4 26.24a242.65 242.65 0 0 1 128.18 0c48.87-33.13 70.33-26.24 70.33-26.24 14 35.25 5.18 61.27 2.55 67.75 16.41 17.9 26.31 40.75 26.31 68.69 0 98.35-59.85 120-116.88 126.32 9.19 7.9 17.38 23.53 17.38 47.41 0 34.22-.31 61.83-.31 70.23 0 6.85 4.61 14.81 17.6 12.31C438.72 464.97 512 369.08 512 256.02 512 114.62 397.37 0 256 0z">
+                  </path>
+                </svg></a>
+
+            </li>
             <!-- Nav Item - Search Dropdown (Visible Only XS) -->
             <li class="nav-item dropdown no-arrow d-sm-none">
               <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
@@ -237,6 +257,28 @@
               </div>
             </div>
 
+            <div class="col-xl-12 col-lg-7">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">total number of practice in a PCT</h6>
+
+                </div>
+                <form method='POST' action="{{ url_for('dashboard.home') }}">
+                  <select class="custom-select"
+                    id="input-group-select" name="pct-option">
+                    {% for item in pct_list %}
+                    <option name="option-list" value="{{ item }}">{{ item }}</option>
+                    {% endfor %}
+                  </select>
+                  <input type="submit" value="Update" class="btn btn-outline-secondary" />
+                </form>
+                <div class="card-body">
+
+                  <canvas id="bar-chart1"></canvas>
+                </div>
+              </div>
+            </div>
+
             <!-- Content Row -->
             <div class="row last-row">
 
@@ -310,8 +352,42 @@
                   </div>
                 </div>
               </div>
+              <div class="col-xl-12">
+                <!-- show search result -->
+                <div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">search by name or bnf code</h6>
+                  </div>
+                  <div class="card-body">
+                    <form method='POST' action="{{ url_for('dashboard.home') }}">
+                      <input type="text" name="search" />
+                      <input type="submit" value="Update" class="btn btn-outline-secondary" />
+                    </form>
+                    <hr />
+                    <table class="table">
+                      <thead>
+                        <td>Practice</td>
+                        <td>BNF code</td>
+                        <td>BNF name</td>
+                        <td>Items</td>
+                      </thead>
+                      <tbody>
+                        {% for row in search %}
+                        <tr>
+                          <td>{{ row.practice }}</td>
+                          <td>{{ row.BNF_code }}</td>
+                          <td>{{ row.BNF_name }}</td>
+                          <td>{{ row.items }}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+
 
           <!-- Creatinine clearance calculator -->
           <div id="creat-calc">
@@ -356,32 +432,45 @@
                 <p>
                   Prescribing Dashboard of wenwen<br>
                   <br>
-                  This is a web dashboard using a famous web framework named flask, it provides information about the prescribing dashboard, illustrating primary care prescription information accrued from general practioners (GP) in England.<br>
+                  This is a web dashboard using a famous web framework named flask, it provides information about the
+                  prescribing dashboard, illustrating primary care prescription information accrued from general
+                  practioners (GP) in England.<br>
                   <br>
-                  The dashbaord is browser based and includes information on precibing patterns and trends across the different GP practises, procured from NHS Digital:<br>
+                  The dashbaord is browser based and includes information on precibing patterns and trends across the
+                  different GP practises, procured from NHS Digital:<br>
                   <br>
-                  The dataset illustrates Practice level prescribing data is a list of all medicines, dressings and appliances that are prescribed by all practices in England, including GP practices, each month.<br>
+                  The dataset illustrates Practice level prescribing data is a list of all medicines, dressings and
+                  appliances that are prescribed by all practices in England, including GP practices, each month.<br>
                   <br>
                   The details are as follows:<br>
-                      <br>
-                  (1) total number of items prescribed and  dispensed, (2) Average ACT Cost<br>
+                  <br>
+                  (1) total number of items prescribed and dispensed, (2) Average ACT Cost<br>
                   (3) Top prescribed item,<br>
                   (4) number of unique items <br>
-                      <br>
-                  (1) Total Items: Displays the total number of items within the dataset that were prescribed and dispensed<br>
+                  <br>
+                  (1) Total Items: Displays the total number of items within the dataset that were prescribed and
+                  dispensed<br>
                   <br>
                   (2) Average ACT Cost: Displays the aggregated, average ACT (actual) cost of the items<br>
                   <br>
-                  (3) Top prescribed item: Displays the item that was most prescribed within the dataset, additionally illustrating what % of all prescriptions this mades up<br>
-                  (4) Number of unique items: Displays  the total number of unique items that were prescribed within the dataset<br>
+                  (3) Top prescribed item: Displays the item that was most prescribed within the dataset, additionally
+                  illustrating what % of all prescriptions this mades up<br>
+                  (4) Number of unique items: Displays the total number of unique items that were prescribed within the
+                  dataset<br>
                   <br>
-                  Prescribed items per PCT/CCG items: the number of prescribed items per PCT - primary care trust or CCG - clincial commisioning group<br>
-                  Infection treatment drug as % of all antimicrobial treatments:Displays the specified infection treatment drugs including including Antibacterials, Antifungals, Antivirals, Antiprotozoals and Anthelminicsout as a percentage of the total infection treatments <br>
-                      <br>
-                  BNF by PCT: Allows the selection of a PCT which will then display the British National Formulary - BNF information.  this includes practice, code, name and qunatity of the items)<br>
-                      <br>
-                  Creatinine Clearance Calculator: This allows for the calculation of the drug creatinine clearance employing the Cockcroft-Gault Equation - see https://www.mdcalc.com/creatinine-clearance-cockcroft-gault-equation <br>
-                      <br>
+                  Prescribed items per PCT/CCG items: the number of prescribed items per PCT - primary care trust or CCG
+                  - clincial commisioning group<br>
+                  Infection treatment drug as % of all antimicrobial treatments:Displays the specified infection
+                  treatment drugs including including Antibacterials, Antifungals, Antivirals, Antiprotozoals and
+                  Anthelminicsout as a percentage of the total infection treatments <br>
+                  <br>
+                  BNF by PCT: Allows the selection of a PCT which will then display the British National Formulary - BNF
+                  information. this includes practice, code, name and qunatity of the items)<br>
+                  <br>
+                  Creatinine Clearance Calculator: This allows for the calculation of the drug creatinine clearance
+                  employing the Cockcroft-Gault Equation - see
+                  https://www.mdcalc.com/creatinine-clearance-cockcroft-gault-equation <br>
+                  <br>
                   The development team: wenwen<br>
                   <br>
                   <br>
@@ -399,19 +488,18 @@
     </div>
     <!-- End of Main Content -->
 
-    <!-- Footer -->
-    <footer class="sticky-footer bg-white">
-      <div class="container my-auto">
-        <div class="copyright text-center my-auto">
-          <span>Copyright &copy; University of Manchester 2020</span>
-        </div>
-      </div>
-    </footer>
-    <!-- End of Footer -->
-
   </div>
   <!-- End of Content Wrapper -->
 
+  <!-- Footer -->
+  <footer class="sticky-footer bg-white">
+    <div class="container my-auto">
+      <div class="copyright text-center my-auto">
+        <span>Copyright &copy; University of Manchester 2020</span>
+      </div>
+    </div>
+  </footer>
+  <!-- End of Footer -->
   </div>
   <!-- End of Page Wrapper -->
 

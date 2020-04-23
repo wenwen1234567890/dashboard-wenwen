@@ -39,6 +39,15 @@ class DatabaseTests(unittest.TestCase):
         treatment_percentage = self.db_mod.get_treatment_percentage()
         self.assertEquals(treatment_percentage, [82.25, 5.22, 2.68, 9.62, 0.23])
 
+    def test_search_by_name(self):
+        res = self.db_mod.search_by_name_or_bnf_score("Mucogel_Susp")
+        self.assertEquals(len(res), 1)
+
+    def test_search_by_bnf_code(self):
+        res = self.db_mod.search_by_name_or_bnf_score("0101010G0BCABAB")
+        self.assertEquals(len(res), 1)
+
+    
 
 
 if __name__ == "__main__":
